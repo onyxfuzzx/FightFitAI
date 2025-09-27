@@ -1,0 +1,8 @@
+services:
+  - type: web                # This is a web service
+    name: fightfitai       # Name of your service (you can customize this)
+    env: python              # Tell Render this is a Python environment
+    plan: free               # Use the free tier plan
+    pythonVersion: 3.10.14   # ✅ Pin Python version to 3.10
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py  # Replace with how you start your app
