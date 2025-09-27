@@ -22,7 +22,7 @@ warnings.filterwarnings("ignore")
 
 # Initialize Flask app
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key')
+app.secret_key = 'smartspar-secret-key-2023'
 
 # =============================================================================
 # MODULE 1: TRAINING PLAN PREDICTOR
@@ -88,8 +88,6 @@ def get_training_model():
 # =============================================================================
 # MODULE 2: POSE PROCESSOR (BOXING TRAINER)
 # =============================================================================
-
-ENABLE_POSE_TRAINER = os.environ.get('ENABLE_POSE_TRAINER', 'false').lower() == 'true'
 
 mp_pose = mp_solutions.pose
 mp_drawing = mp_solutions.drawing_utils
@@ -504,20 +502,13 @@ def generate_frames(session_id):
         if camera:
             camera.release()
 
-
-
 @app.route('/pose-trainer')
 def pose_trainer_index():
-    if not ENABLE_POSE_TRAINER:
-        return render_template('pose_trainer_disabled.html')
-    
-# @app.route('/pose-trainer')
-# def pose_trainer_index():
-#     session_id = session.get('session_id')
-#     if not session_id:
-#         session_id = str(time.time())
-#         session['session_id'] = session_id
-#     return render_template('pose_trainer.html', session_id=session_id)
+    session_id = session.get('session_id')
+    if not session_id:
+        session_id = str(time.time())
+        session['session_id'] = session_id
+    return render_template('pose_trainer.html', session_id=session_id)
 
 @app.route('/pose-trainer/video_feed')
 def pose_trainer_video_feed():
@@ -606,6 +597,4 @@ def fight_predictor_predict():
 # =============================================================================
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8080))
-    debug = os.environ.get('FLASK_ENV') == 'development'
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    app.run(host="0.0.0.0", port=8080, debug=True)
