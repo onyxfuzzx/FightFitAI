@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Fight Predictor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="module-card p-4">
+            <h2 class="text-center mb-4"><i class="fas fa-trophy"></i> Fight Predictor</h2>
+            
+            <form method="POST" action="/fight-predictor/predict">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Fighter A (Red Corner)</label>
+                            <select class="form-select" name="fighter_a" required>
+                                <option value="">Select Fighter A</option>
+                                {% for fighter in fighters %}
+                                <option value="{{ fighter }}">{{ fighter }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Fighter B (Blue Corner)</label>
+                            <select class="form-select" name="fighter_b" required>
+                                <option value="">Select Fighter B</option>
+                                {% for fighter in fighters %}
+                                <option value="{{ fighter }}">{{ fighter }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-boxing-glove"></i> Predict Winner
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-4 text-center">
+                <h5>How It Works</h5>
+                <p class="text-muted">
+                    Our AI analyzes historical fight data, fighter statistics, and performance metrics 
+                    to predict the most likely winner based on machine learning algorithms.
+                </p>
+            </div>
+        </div>
+
+        <div class="module-card p-4 mt-4">
+            <h4 class="text-center">Recent Predictions</h4>
+            <div class="table-responsive">
+                <table class="table table-dark">
+                    <thead>
+                        <tr>
+                            <th>Fight</th>
+                            <th>Prediction</th>
+                            <th>Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>No recent predictions</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Home - FightFitAI{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="display-4 mb-3"><i class="fas fa-fist-raised"></i> FightFitAI</h1>
+    <p class="lead">Your Ultimate AI-Powered Boxing Training Companion</p>
+</div>
+
+<div class="row">
+    <!-- Training Plan Predictor -->
+    <div class="col-md-4 mb-4">
+        <div class="module-card h-100 p-4 text-center">
+            <div class="mb-3">
+                <i class="fas fa-dumbbell fa-3x text-danger"></i>
+            </div>
+            <h3>Training Plan Predictor</h3>
+            <p>Get personalized boxing training plans based on your profile, goals, and experience level.</p>
+            <a href="/training-plan" class="btn btn-primary mt-3">Get Started</a>
+        </div>
+    </div>
+
+    <!-- Boxing Pose Trainer -->
+    <div class="col-md-4 mb-4">
+        <div class="module-card h-100 p-4 text-center">
+            <div class="mb-3">
+                <i class="fas fa-video fa-3x text-warning"></i>
+            </div>
+            <h3>AI Boxing Trainer</h3>
+            <p>Real-time pose detection and feedback for perfecting your boxing technique.</p>
+            <a href="/pose-trainer" class="btn btn-primary mt-3">Start Training</a>
+        </div>
+    </div>
+
+    <!-- Fight Predictor -->
+    <div class="col-md-4 mb-4">
+        <div class="module-card h-100 p-4 text-center">
+            <div class="mb-3">
+                <i class="fas fa-trophy fa-3x text-success"></i>
+            </div>
+            <h3>Fight Predictor</h3>
+            <p>Predict fight outcomes based on fighter statistics and historical data.</p>
+            <a href="/fight-predictor" class="btn btn-primary mt-3">Predict Fight</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="module-card p-4">
+            <h3 class="text-center mb-4">About FightFitAI</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-brain"></i> AI-Powered Training</h5>
+                    <p>Our advanced machine learning algorithms analyze your profile to create optimal training regimens.</p>
+                    
+                    <h5><i class="fas fa-chart-line"></i> Real-Time Analytics</h5>
+                    <p>Track your progress with detailed statistics and performance metrics.</p>
+                </div>
+                <div class="col-md-6">
+                    <h5><i class="fas fa-camera"></i> Computer Vision</h5>
+                    <p>State-of-the-art pose detection technology provides instant feedback on your form.</p>
+                    
+                    <h5><i class="fas fa-database"></i> Data-Driven Predictions</h5>
+                    <p>Make informed decisions with predictions based on comprehensive fighter databases.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

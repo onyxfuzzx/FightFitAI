@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Fight Prediction Results{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <div class="module-card p-4">
+            <h2 class="text-center mb-4"><i class="fas fa-trophy"></i> Fight Prediction Results</h2>
+            
+            <!-- Winner Announcement -->
+            <div class="text-center mb-4">
+                <div class="alert alert-success">
+                    <h3><i class="fas fa-crown"></i> Predicted Winner: {{ winner }}</h3>
+                    <h4>Confidence: {{ winner_prob }}%</h4>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Fighter Comparison -->
+                <div class="col-md-6">
+                    <div class="stats-card">
+                        <h4 class="text-center">Fighter Comparison</h4>
+                        <div class="table-responsive">
+                            <table class="table table-dark">
+                                <thead>
+                                    <tr>
+                                        <th>Statistic</th>
+                                        <th>{{ fighter_a }}</th>
+                                        <th>{{ fighter_b }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for data in comparison_data %}
+                                    <tr>
+                                        <td>{{ data.feature }}</td>
+                                        <td>{{ data.fighter_a }}</td>
+                                        <td>{{ data.fighter_b }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Probability Breakdown -->
+                <div class="col-md-6">
+                    <div class="stats-card">
+                        <h4 class="text-center">Win Probability</h4>
+                        <div class="text-center mt-4">
+                            <div class="mb-3">
+                                <h5>{{ fighter_a }}</h5>
+                                <div class="progress mb-2" style="height: 30px;">
+                                    <div class="progress-bar bg-danger" style="width: {{ winner_prob if winner == fighter_a else loser_prob }}%">
+                                        {{ winner_prob if winner == fighter_a else loser_prob }}%
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h5>{{ fighter_b }}</h5>
+                                <div class="progress mb-2" style="height: 30px;">
+                                    <div class="progress-bar bg-primary" style="width: {{ winner_prob if winner == fighter_b else loser_prob }}%">
+                                        {{ winner_prob if winner == fighter_b else loser_prob }}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Key Factors -->
+                    <div class="stats-card mt-3">
+                        <h5>Key Winning Factors</h5>
+                        <ul>
+                            <li>Superior striking accuracy</li>
+                            <li>Better defensive statistics</li>
+                            <li>Experience advantage</li>
+                            <li>Recent performance trends</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mt-4">
+                <a href="/fight-predictor" class="btn btn-primary me-2">
+                    <i class="fas fa-redo"></i> New Prediction
+                </a>
+                <a href="/" class="btn btn-outline-light">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

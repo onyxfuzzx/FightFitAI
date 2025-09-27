@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Training Plan Predictor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="module-card p-4">
+            <h2 class="text-center mb-4"><i class="fas fa-dumbbell"></i> Personalized Training Plan</h2>
+            
+            <form id="trainingForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Age</label>
+                            <input type="number" class="form-control" id="age" min="15" max="70" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Height (cm)</label>
+                            <input type="number" class="form-control" id="height" min="140" max="220" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Weight (kg)</label>
+                            <input type="number" class="form-control" id="weight" min="40" max="150" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Experience Level</label>
+                            <select class="form-select" id="experience" required>
+                                <option value="">Select Experience</option>
+                                {% for level in experience_levels %}
+                                <option value="{{ level }}">{{ level }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Training Goal</label>
+                            <select class="form-select" id="goal" required>
+                                <option value="">Select Goal</option>
+                                {% for goal in goals %}
+                                <option value="{{ goal }}">{{ goal }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Injury History</label>
+                            <select class="form-select" id="injury_history" required>
+                                <option value="">Select Option</option>
+                                {% for injury in injury_history %}
+                                <option value="{{ injury }}">{{ injury }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-calculator"></i> Generate Training Plan
+                    </button>
+                </div>
+            </form>
+
+            <div id="results" class="mt-4" style="display: none;">
+                <h3 class="text-center">Your Personalized Training Plan</h3>
+                <div class="stats-card">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h5>BMI</h5>
+                            <h3 id="bmiResult">-</h3>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Goal Duration</h5>
+                            <h3 id="durationResult">- months</h3>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Training Focus</h5>
+                            <h5 id="focusResult">-</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="mt-4">Weekly Training Distribution (Minutes)</h4>
+                <div class="row text-center">
+                    <div class="col-md-2">
+                        <div class="stats-card">
+                            <h6>Cardio</h6>
+                            <h4 id="cardioResult">-</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="stats-card">
+                            <h6>Skill Drills</h6>
+                            <h4 id="skillResult">-</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="stats-card">
+                            <h6>Strength</h6>
+                            <h4 id="strengthResult">-</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="stats-card">
+                            <h6>Agility</h6>
+                            <h4 id="agilityResult">-</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="stats-card">
+                            <h6>Recovery</h6>
+                            <h4 id="recoveryResult">-</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button class="btn btn-outline-light" onclick="printPlan()">
+                        <i class="fas fa-print"></i> Print Plan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('trainingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        age: document.getElementById('age').value,
+        height: document.getElementById('height').value,
+        weight: document.getElementById('weight').value,
+        experience: document.getElementById('experience').value,
+        goal: document.getElementById('goal').value,
+        injury_history: document.getElementById('injury_history').value
+    };
+
+    fetch('/training-plan/predict', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update results
+        document.getElementById('bmiResult').textContent = data.bmi;
+        document.getElementById('durationResult').textContent = data.duration + ' months';
+        document.getElementById('cardioResult').textContent = data.cardio;
+        document.getElementById('skillResult').textContent = data.skill;
+        document.getElementById('strengthResult').textContent = data.strength;
+        document.getElementById('agilityResult').textContent = data.agility;
+        document.getElementById('recoveryResult').textContent = data.recovery;
+        
+        // Determine focus
+        const values = [data.cardio, data.skill, data.strength, data.agility];
+        const focuses = ['Cardio Endurance', 'Skill Development', 'Strength Building', 'Agility Training'];
+        const maxIndex = values.indexOf(Math.max(...values));
+        document.getElementById('focusResult').textContent = focuses[maxIndex];
+        
+        // Show results
+        document.getElementById('results').style.display = 'block';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error generating training plan. Please try again.');
+    });
+});
+
+function printPlan() {
+    window.print();
+}
+</script>
+{% endblock %}
