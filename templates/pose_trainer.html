@@ -7,10 +7,12 @@
     <div class="col-lg-8">
         <div class="module-card p-3">
             <h3 class="text-center mb-3"><i class="fas fa-video"></i> AI Boxing Trainer</h3>
-            <div class="video-container">
-                <img src="{{ url_for('pose_trainer_video_feed') }}" width="100%" height="auto">
-            </div>
-            
+
+            <!-- CLIENT CAMERA FEED -->
+            <video id="clientCam" autoplay playsinline width="100%" style="border-radius: 10px;"></video>
+
+            <canvas id="sendCanvas" style="display:none;"></canvas>
+
             <div class="text-center mt-3">
                 <button class="btn btn-success me-2" onclick="startTraining()">
                     <i class="fas fa-play"></i> Start Session
@@ -25,10 +27,11 @@
         </div>
     </div>
 
+    <!-- === STATISTICS SECTION UNCHANGED === -->
     <div class="col-lg-4">
         <div class="module-card p-3">
             <h4 class="text-center">Training Statistics</h4>
-            
+
             <div id="statsDisplay">
                 <div class="stats-card">
                     <div class="row text-center">
@@ -41,7 +44,7 @@
                             <h3 id="accuracy">0%</h3>
                         </div>
                     </div>
-                    
+
                     <div class="row text-center mt-3">
                         <div class="col-6">
                             <h6>Session Time</h6>
@@ -52,7 +55,7 @@
                             <h4 id="punchesPerMin">0</h4>
                         </div>
                     </div>
-                    
+
                     <div class="mt-3">
                         <h6>Guard Perfection</h6>
                         <div class="progress mb-2">
@@ -63,35 +66,12 @@
 
                 <h5 class="mt-4">Punch Breakdown</h5>
                 <div class="row text-center">
-                    <div class="col-3">
-                        <small>Jabs</small>
-                        <h5 id="jabCount">0</h5>
-                    </div>
-                    <div class="col-3">
-                        <small>Crosses</small>
-                        <h5 id="crossCount">0</h5>
-                    </div>
-                    <div class="col-3">
-                        <small>Hooks</small>
-                        <h5 id="hookCount">0</h5>
-                    </div>
-                    <div class="col-3">
-                        <small>Uppercuts</small>
-                        <h5 id="upperCount">0</h5>
-                    </div>
+                    <div class="col-3"><small>Jabs</small><h5 id="jabCount">0</h5></div>
+                    <div class="col-3"><small>Crosses</small><h5 id="crossCount">0</h5></div>
+                    <div class="col-3"><small>Hooks</small><h5 id="hookCount">0</h5></div>
+                    <div class="col-3"><small>Uppercuts</small><h5 id="upperCount">0</h5></div>
                 </div>
             </div>
-        </div>
-
-        <div class="module-card p-3 mt-3">
-            <h5>Training Tips</h5>
-            <ul class="list-unstyled">
-                <li><i class="fas fa-check text-success"></i> Keep your guard up at all times</li>
-                <li><i class="fas fa-check text-success"></i> Maintain proper foot positioning</li>
-                <li><i class="fas fa-check text-success"></i> Rotate your hips for power</li>
-                <li><i class="fas fa-check text-success"></i> Breathe out with each punch</li>
-                <li><i class="fas fa-check text-success"></i> Keep your chin tucked</li>
-            </ul>
         </div>
     </div>
 </div>
@@ -99,8 +79,42 @@
 
 {% block scripts %}
 <script>
+let sending = false;
 let statsInterval;
 
+// === ENABLE CLIENT WEBCAM ===
+async function startClientCamera() {
+    const video = document.getElementById("clientCam");
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+}
+startClientCamera();
+
+// === SEND FRAMES TO FLASK ===
+function sendFramesToServer() {
+    if (!sending) return;
+
+    const video = document.getElementById("clientCam");
+    const canvas = document.getElementById("sendCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const frame = canvas.toDataURL("image/jpeg");
+
+    fetch("/pose-trainer/process-frame", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ frame: frame })
+    });
+
+    requestAnimationFrame(sendFramesToServer);
+}
+
+// === UPDATE STATS ===
 function updateStats() {
     fetch('/pose-trainer/stats')
         .then(response => response.json())
@@ -109,10 +123,10 @@ function updateStats() {
             document.getElementById('accuracy').textContent = data.accuracy + '%';
             document.getElementById('sessionTime').textContent = Math.round(data.session_duration) + 's';
             document.getElementById('punchesPerMin').textContent = data.punches_per_minute;
-            
+
             document.getElementById('guardProgress').style.width = data.guard_perfection + '%';
             document.getElementById('guardProgress').textContent = data.guard_perfection + '%';
-            
+
             document.getElementById('jabCount').textContent = data.punch_counts.Jab || 0;
             document.getElementById('crossCount').textContent = data.punch_counts.Cross || 0;
             document.getElementById('hookCount').textContent = data.punch_counts.Hook || 0;
@@ -121,33 +135,32 @@ function updateStats() {
 }
 
 function startTraining() {
+    sending = true;
+    sendFramesToServer();
+
     if (!statsInterval) {
         statsInterval = setInterval(updateStats, 1000);
-        alert('Training session started! Make sure your camera is enabled.');
     }
+
+    alert("Training started — client camera active!");
 }
 
 function resetStats() {
     fetch('/pose-trainer/reset_stats')
-        .then(response => response.json())
-        .then(data => {
-            alert('Statistics reset successfully!');
-            updateStats();
-        });
+        .then(res => res.json())
+        .then(() => alert("Stats reset!"));
 }
 
 function endSession() {
-    if (statsInterval) {
-        clearInterval(statsInterval);
-        statsInterval = null;
-    }
-    window.location.href = '/pose-trainer/end_session';
+    sending = false;
+    clearInterval(statsInterval);
+    statsInterval = null;
+
+    window.location.href = "/pose-trainer/end_session";
 }
 
-// Initialize stats on page load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", () => {
     updateStats();
-    startTraining();
 });
 </script>
 {% endblock %}
